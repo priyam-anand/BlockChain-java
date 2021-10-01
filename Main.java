@@ -17,7 +17,8 @@ public class Main {
 		{
 			System.out.println("1. to add new block");
 			System.out.println("2 to display the blockchain");
-			System.out.println("3. any other key to exit.");
+			System.out.println("3 check validity of blockchain");
+			System.out.println("4 any other key to exit.");
 			int input=f.nextInt();
 			
 			switch(input) {
@@ -27,6 +28,12 @@ public class Main {
 					break;
 				case 2:
 					displayBlockChain();
+					break;
+				case 3:
+					if(isBlockChainValid())
+						System.out.println("Chain is Valid");
+					else
+						System.out.println("Chain is NOT Valid");
 					break;
 				default:
 					over=true;
@@ -39,6 +46,11 @@ public class Main {
 		
 	}
 
+	public static boolean isBlockChainValid() throws NoSuchAlgorithmException
+	{
+		return bc.isValid();
+	}
+	
 	public static void displayBlockChain()
 	{
 		bc.printChain();
