@@ -11,12 +11,12 @@ public class BlockChain {
 	public BlockChain(int dif)
 	{
 		this.chain=new ArrayList<>();
-		addNewBlock("1","0");
+		addNewBlock(1,"0");
 		this.dif=dif;
 	}
 	
 	// add new block
-	public Block addNewBlock(String proof,String prev_hash)
+	public Block addNewBlock(int proof,String prev_hash)
 	{		
 		Block newBlock = new Block(chain.size(),proof,prev_hash,new Date());		
 		chain.add(newBlock);	
@@ -30,10 +30,10 @@ public class BlockChain {
 	}
 	
 	// get hash of the current block
-	public String getHashBlock(Block b)throws NoSuchAlgorithmException
+	public String getHashBlock(Block b,Block b2)throws NoSuchAlgorithmException
 	{
-		String input = b.getIndex()+" "+b.getPrev_hash()+" "
-						+b.getProof()+" "+b.getTimeNow();
+		
+		String input = (b2.getProof()*b2.getProof()-b.getProof()*b.getProof())+"";
         MessageDigest md = MessageDigest.getInstance("SHA-256"); 
         byte arr[]=md.digest(input.getBytes(StandardCharsets.UTF_8)); 
     	String hash=toHexString(arr);
@@ -42,23 +42,24 @@ public class BlockChain {
 	}
 	
 	// generate the proof of work to mine the current hash
-	public String getProof(String prevProof)throws NoSuchAlgorithmException
+	public int getProof(int prevProof)throws NoSuchAlgorithmException
 	{
         MessageDigest md = MessageDigest.getInstance("SHA-256"); 
-        BigInteger currProof = new BigInteger("1",16);
-        BigInteger prev = new BigInteger(prevProof,16);
+        int currProof=1;
+        int prev = prevProof;
         while(true)
         {
-        	String input = getInput(currProof,prev);
+        	int value=(prev*prev-currProof*currProof);
+        	String input = value+"";
         	byte arr[]=md.digest(input.getBytes(StandardCharsets.UTF_8)); 
         	String hash=toHexString(arr);
         	if(isOk(hash,dif))
         	{
         		break;
         	}
-        	currProof = currProof.add(new BigInteger("1"));
+        	currProof++;
         }
-        return currProof.toString(16);
+        return currProof;
 	}
 	// helper function for proof of work
 	public boolean isOk(String str,int n)
@@ -67,11 +68,6 @@ public class BlockChain {
 			if(str.charAt(i)!='0')
 				return false;
 		return true;
-	}	
-	public String getInput(BigInteger num1,BigInteger num2)
-	{
-		num2 = num2.subtract(num1);		
-		return num2.toString(10);
 	}	
 	public String toHexString(byte[] hash)
     {
@@ -96,13 +92,16 @@ public class BlockChain {
 	// validate the entire chain
 	public boolean isValid()throws NoSuchAlgorithmException
 	{
-		for(int i=1;i<chain.size();i++)
+		for(int i=2;i<chain.size();i++)
 		{
 			Block curr = chain.get(i);
 			Block prev = chain.get(i-1);
 			
-			String input = getInput(new BigInteger(curr.getProof(),16),new 
-					BigInteger(prev.getProof(),16));
+			int value = (prev.getProof()*prev.getProof()-
+					curr.getProof()*curr.getProof());
+			
+			String input = value+"";
+
 	        MessageDigest md = MessageDigest.getInstance("SHA-256"); 
         	byte arr[]=md.digest(input.getBytes(StandardCharsets.UTF_8)); 
         	String hash=toHexString(arr);
@@ -112,8 +111,10 @@ public class BlockChain {
         		return false;
         	}
         	
-        	input = prev.getIndex()+" "+prev.getPrev_hash()+" "
-					+prev.getProof()+" "+prev.getTimeNow();
+        	Block prevPrev = chain.get(i-2);
+        	input = (prevPrev.getProof()*prevPrev.getProof()-
+					prev.getProof()*prev.getProof()) + "";
+        			
         	arr=md.digest(input.getBytes(StandardCharsets.UTF_8)); 
         	hash=toHexString(arr);
         	

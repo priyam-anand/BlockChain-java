@@ -2,11 +2,11 @@ import java.util.Date;
 
 public class Block 
 {
-	int index;
-	String proof,prev_hash;
+	int index,proof;
+	String prev_hash;
 	Date timeNow;
 	
-	public Block(int index,String proof,String prev_hash,Date time)
+	public Block(int index,int proof,String prev_hash,Date time)
 	{
 		this.index=index;
 		this.proof=proof;
@@ -17,7 +17,7 @@ public class Block
 	public int getIndex() {
 		return index;
 	}
-	public String getProof() {
+	public int getProof() {
 		return proof;
 	}
 	public String getPrev_hash() {

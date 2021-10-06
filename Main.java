@@ -16,9 +16,10 @@ public class Main {
 		while(!over)
 		{
 			System.out.println("1. to add new block");
-			System.out.println("2 to display the blockchain");
-			System.out.println("3 check validity of blockchain");
-			System.out.println("4 any other key to exit.");
+			System.out.println("2. to display the blockchain");
+			System.out.println("3. check validity of blockchain");
+			System.out.println("4. View hash of nth block");
+			System.out.println("5. any other key to exit.");
 			int input=f.nextInt();
 			
 			switch(input) {
@@ -35,6 +36,10 @@ public class Main {
 					else
 						System.out.println("Chain is NOT Valid");
 					break;
+				case 4:
+					int idx=f.nextInt();
+					getBlockHash(idx);
+					break;
 				default:
 					over=true;
 					break;
@@ -46,6 +51,20 @@ public class Main {
 		
 	}
 
+	public static void getBlockHash(int idx) throws NoSuchAlgorithmException {
+		if(idx<2 || idx>bc.chain.size()-1)
+		{
+			System.out.println("Invalid Index block number");
+			System.out.println();
+			return;
+		}
+		Block curr=bc.chain.get(idx);
+		Block prev=bc.chain.get(idx-1);
+		
+		String ans = bc.getHashBlock(curr,prev);
+		System.out.println("hash of current block is = "+ans+"\n");
+	}
+	
 	public static boolean isBlockChainValid() throws NoSuchAlgorithmException
 	{
 		return bc.isValid();
@@ -60,14 +79,23 @@ public class Main {
 	public static void mineBlock() throws NoSuchAlgorithmException
 	{
 		Block previous_block = bc.getPreviouBlock();
-		String prev_proof = previous_block.getProof();
-		
-		String curr_proof = bc.getProof(prev_proof);
-		String prev_hash = bc.getHashBlock(bc.chain.get(bc.chain.size()-1));
+		int prev_proof = previous_block.getProof();
+		int curr_proof = bc.getProof(prev_proof);
+		String prev_hash="";
+		if(bc.chain.size()==1)
+		{
+			for(int i=0;i<64;i++)
+				prev_hash+="0";
+		}
+		else
+		{
+			prev_hash = bc.getHashBlock(bc.chain.get(bc.chain.size()-1),
+					bc.chain.get(bc.chain.size()-2));
+		}
+					
 		
 		Block newBlock = bc.addNewBlock(curr_proof, prev_hash);
-		System.out.println("successfully mined a new Block = "+newBlock.index+" "+newBlock.prev_hash+" "
-				+newBlock.proof+" "+newBlock.timeNow);
+		System.out.println("successfully mined a new Block with proof = "+curr_proof);
 		System.out.println();
 	}
 	
